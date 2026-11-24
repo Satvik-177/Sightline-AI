@@ -1,9 +1,25 @@
-import "dotenv/config"
 import app from "./app.js"
+import { env } from "./config/env.js"
+import { connectDB } from "./config/database.js"
+import { logger } from "./utils/logger.js";
 
-const PORT = Number(process.env.port) || 5000
+async function startServer():Promise<void>{
 
-app.listen(PORT,()=>{
+    try{
+        await connectDB();
 
-    console.log(`SlightLine AI server is running on port ${PORT}`)
-})
+        app.listen(env.PORT,()=>{
+        
+            console.log(`SlightLine AI server is running on port ${env.PORT}`)
+       })
+
+    }
+
+    catch(err){
+
+        console.error("Failed to start server:",err)
+        process.exit(1)
+    }
+}
+
+startServer()
