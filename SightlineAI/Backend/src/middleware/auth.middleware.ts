@@ -3,6 +3,7 @@ import { AppError } from "../utils/AppError.js";
 import { env } from "../config/env.js";
 import jwt from "jsonwebtoken";
 import { RevokedToken } from "../Models/RevokedToken.js";
+import { User } from "../Models/User.js";
 
 
 type AuthTokenPayload = {
@@ -47,10 +48,6 @@ export async function protect(
             typeof payload["exp"] !== "number"
         ){
 
-            console.log(typeof payload["sub"])
-            console.log(typeof payload["jti"])
-            console.log(typeof payload["exp"])
-            
             return next(new AppError("JWT claims are invalid",401))
         }
 
@@ -70,11 +67,18 @@ export async function protect(
         return next(new AppError("Token has been revoked", 401))
     }
 
+    const user = await User.findById(decoded.sub).select("role");
+
+    if (!user) {
+       return next(new AppError("User no longer exists", 401));
+    }
+
     req.user = {
 
         id:decoded.sub!,
         tokenId:decoded.jti,
-        expiresAt:new Date(decoded.exp! * 1000)
+        expiresAt:new Date(decoded.exp! * 1000),
+        role:user.role
     };
 
     next()

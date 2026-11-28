@@ -6,6 +6,8 @@ import { pinoHttp } from "pino-http";
 import { errorHandler } from "./middleware/errorHandler.js";
 import { AppError } from "./utils/AppError.js";
 import authRoute from "./routes/auth.routes.js";
+import router from "./routes/admin.routes.js";
+import { apiLimiter } from "./middleware/rateLimit.middleware.js";
 
 const app = express()
 
@@ -26,7 +28,10 @@ app.get("/api/test-error",(req,res,next)=>{
     next(new AppError("This is a test error",404))
 })
 
+app.use("/api",apiLimiter)
+
 app.use("/api/auth", authRoute)
+app.use("/api/admin",router)
 
 app.use(errorHandler)
 

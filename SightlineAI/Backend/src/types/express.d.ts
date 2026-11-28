@@ -5,6 +5,7 @@ declare global {
         id: string;
         tokenId: string;
         expiresAt: Date;
+        role: "user" | "admin"
       };
     }
   }

@@ -1,9 +1,12 @@
 import { Schema, model } from "mongoose";
 
+type UserRole = "user" | "admin"
+
 interface IUser {   // For typescript
   name: string;
   email: string;
   passwordHash: string;
+  role:UserRole
 }
 
 const userSchema = new Schema<IUser>(  //For MongoDB database
@@ -26,6 +29,12 @@ const userSchema = new Schema<IUser>(  //For MongoDB database
       type: String,
       required: true,
       select: false,
+    },
+
+    role: {
+      type: String,
+      enum: ["user", "admin"],
+      default: "user",
     },
   },
   {
