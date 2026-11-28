@@ -1,6 +1,9 @@
+import { RevokedToken } from "../Models/RevokedToken.js";
 import { User } from "../Models/User.js";
 import { AppError } from "../utils/AppError.js";
-import { comparePassword, hashedPassword } from "../utils/password.js";
+import { generateToken } from "../utils/jwt.js";
+import { comparePassword, hashedPassword } from 
+"../utils/password.js";
 
 export async function registerUser(
     name:string,
@@ -44,14 +47,46 @@ export async function loginUser(
 
     const isPasswordValid = await comparePassword(password,user.passwordHash)
 
+
     if(!isPasswordValid){
+
         throw new AppError("Invalid email or password",401)
     }
+
+    const token = generateToken(user._id.toString())
 
     return{
 
         user:user._id,
         name:user.name,
-        email:user.email
+        email:user.email,
+        token
     }
+}
+
+export async function getCurrentUser(userId: string){
+
+    const user = await User.findById(userId)
+
+    if(!user){
+        throw new AppError('user not found', 404)
+    }
+
+    return {
+
+        id:user._id.toString(),
+        name:user.name,
+        email:user.email
+    };
+}
+
+export async function revokeToken(
+    tokenId:string,
+    expiresAt:Date
+):Promise<void>{
+
+    await RevokedToken.create({
+        jti:tokenId,
+        expiresAt
+    })
 }

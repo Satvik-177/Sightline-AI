@@ -14,8 +14,8 @@ export function errorHandler(
     let message = "Internal Server error"
     
     if(err instanceof AppError){
-        statusCode:err.statusCode;
-        message:err.message
+        statusCode = err.statusCode;
+        message = err.message
     }
 
     logger.error(
